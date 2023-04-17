@@ -1,0 +1,53 @@
+body {
+    background-image: url("background.webp");
+    background-size: cover;
+    margin: 0;
+}
+.home {
+    display:flex;
+    justify-content: center;
+}
+@font-face {
+    font-family: Roboto;
+    src: url("Roboto/Roboto-Black.ttf");
+}
+.heading {
+    color: white;
+    font-size: 3rem;
+    font-family: Roboto;
+    text-shadow: 5px 5px 0 black;
+}
+nav {
+    display:flex;
+    gap: 7rem;
+    justify-content: center;
+}
+nav a {
+    background-color: black;
+    border-radius: 1rem;
+    padding: 1rem;
+    font-family: Roboto;
+    font-size: 1.5rem;
+    color: white;
+    text-shadow: 5px 5px 0 black;
+    text-decoration: none;
+    opacity: 0.5;
+}
+ul {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 1rem;
+}
+ul a {
+    display: block;
+    background-color: black;
+    border-radius: 1rem;
+    padding: 1rem;
+    font-family: Roboto;
+    font-size: 1.5rem;
+    color: white;
+    text-shadow: 5px 5px 0 black;
+    text-decoration: none;
+    opacity: 0.5;
+}
