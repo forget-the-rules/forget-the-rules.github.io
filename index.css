@@ -68,3 +68,8 @@ ul a {
     border-radius: 1rem;
     opacity: 0.7;
 }
+.game-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
