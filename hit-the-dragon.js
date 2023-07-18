@@ -7,6 +7,17 @@ function loadImage(src) {
         })
     })
 }
+
+function overlapping (rect1, rect2) {
+    let isRight = rect2.left > rect1.right
+    let isLeft = rect2.right < rect1.left
+    let isTop = rect2.bottom < rect1.top
+    let isBottom = rect2.top > rect1.bottom
+    let notOverlapping = isRight || isLeft || isTop || isBottom
+    let isOverlapping = !notOverlapping 
+    return isOverlapping  
+}
+
 window.addEventListener("DOMContentLoaded", async function () {
     let canvas = document.getElementById("game")
     let context = canvas.getContext("2d")
@@ -15,7 +26,9 @@ window.addEventListener("DOMContentLoaded", async function () {
     let fps = 50
 
     context.fillStyle = "white"
-   
+
+    let space = await loadImage("space.jpg")
+       
     let dragon = await loadImage("dragon.webp")
     let dragonScale = 0.35
     let dragonWidth = dragonScale * dragon.width
@@ -24,6 +37,7 @@ window.addEventListener("DOMContentLoaded", async function () {
     let dragonTop = 0
     let dragonMovingRight = true
     let dragonSpeed = (width - dragonWidth) / fps / 1
+    let isDragonHit = false 
 
     let crossbow = await loadImage("crossbow.png")
     let crossbowScale = 0.25
@@ -31,6 +45,7 @@ window.addEventListener("DOMContentLoaded", async function () {
     let crossbowHeight = crossbowScale * crossbow.height
     let crossbowLeft = (width - crossbowWidth) / 2
     let crossbowTop = height - crossbowHeight
+    let isCrossbowHit = false
 
     let arrow = await loadImage("arrow.png")
     let arrowScale = 0.15 
@@ -39,7 +54,7 @@ window.addEventListener("DOMContentLoaded", async function () {
     let arrowLeft = 0
     let arrowTop = height - arrowHeight 
     let isArrowFired = false  
-    let arrowSpeed = height / fps / 1.5 
+    let arrowSpeed = height / fps / 0.4 
     
     let fireball = await loadImage("fireball.webp")
     let fireballScale = 0.1
@@ -47,8 +62,15 @@ window.addEventListener("DOMContentLoaded", async function () {
     let fireballHeight = fireballScale * fireball.height
     let fireballLeft = 200
     let fireballTop = 125
-    let fireballSpeed = (height - 125) / fps / (1 / Math.PI) 
-
+    let fireballSpeed = (height - 125) / fps / (1 / Math.PI)
+    
+    let heart = await loadImage("heart.png")
+    let heartScale = 0.03
+    let heartWidth = heartScale * heart.width
+    let heartHeight = heartScale * heart.height
+    let dragonHearts = 10
+    let crossbowHearts = 5 
+    
     canvas.addEventListener("mousemove", function (event) {
         let left = event.offsetX - crossbowWidth / 2
         if (left < 0) left = 0
@@ -71,10 +93,11 @@ window.addEventListener("DOMContentLoaded", async function () {
         moveDragon()
         moveArrow()
         moveFireball()
+        detectCollisions()
     }, 1000 / fps);
 
     function animate(){
-        context.fillRect(0, 0, width, height)
+        context.drawImage(space, 0, 0, width, height)
         if (dragonMovingRight) {
             context.drawImage(dragon, dragonLeft, dragonTop, dragonWidth, dragonHeight)
         } else {
@@ -97,6 +120,12 @@ window.addEventListener("DOMContentLoaded", async function () {
             context.drawImage(fireball, width - fireballLeft - fireballWidth, fireballTop, fireballWidth, fireballHeight)
             context.restore()
         }
+        for (let i = 0; i < dragonHearts; i = i + 1) {
+            context.drawImage(heart, heartWidth * i, 0, heartWidth, heartHeight)
+        }
+        for (let i = 0; i < crossbowHearts; i = i + 1) {
+            context.drawImage(heart, width - heartWidth - heartWidth * i, height - heartHeight, heartWidth, heartHeight)
+        }
     }
 
     function moveDragon() {
@@ -118,6 +147,7 @@ window.addEventListener("DOMContentLoaded", async function () {
             arrowTop = arrowTop - arrowSpeed
             if (arrowTop <= -arrowHeight) {
                 isArrowFired = false
+                isDragonHit = false
             }
         }
     }  
@@ -125,12 +155,48 @@ window.addEventListener("DOMContentLoaded", async function () {
     function moveFireball() {
         fireballTop = fireballTop + fireballSpeed
         if (fireballTop >= height) {
+            isCrossbowHit = false
             fireballTop = 125
             if (dragonMovingRight) {
                 fireballLeft = dragonLeft + 200
             } else {
                 fireballLeft = dragonLeft + dragonWidth - 200
             }
+        }
+    }
+
+    function detectCollisions() {
+        let dragonRect = {
+            left: dragonLeft, 
+            top: dragonTop, 
+            right: dragonLeft + dragonWidth,
+            bottom: dragonTop + dragonHeight 
+        }
+        let crossbowRect = {
+            left: crossbowLeft, 
+            top: crossbowTop, 
+            right: crossbowLeft + crossbowWidth,
+            bottom: crossbowTop + crossbowHeight 
+        }
+        let arrowRect = {
+            left: arrowLeft, 
+            top: arrowTop, 
+            right: arrowLeft + arrowWidth,
+            bottom: arrowTop + arrowHeight
+        }
+        let fireballRect = {
+            left: fireballLeft, 
+            top: fireballTop, 
+            right: fireballLeft + fireballWidth,
+            bottom: fireballTop + fireballHeight 
+        }
+        if (!isDragonHit && overlapping(dragonRect, arrowRect)) {
+            isDragonHit = true
+            dragonHearts = dragonHearts - 1
+        } 
+        if (!isCrossbowHit && overlapping(crossbowRect, fireballRect)) {
+            isCrossbowHit = true
+            crossbowHearts = crossbowHearts - 1
         }
     }
 
