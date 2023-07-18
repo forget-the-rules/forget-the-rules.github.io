@@ -28,7 +28,23 @@ window.addEventListener("DOMContentLoaded", async function () {
     context.fillStyle = "white"
 
     let space = await loadImage("space.jpg")
-       
+
+    let victory = await loadImage("victory.png")
+    let victoryScale = 1
+    let victoryWidth = victoryScale * victory.width
+    let victoryHeight = victoryScale * victory.height
+    let victoryLeft = (width - victoryWidth) / 2
+    let victoryTop = (height - victoryHeight) / 2
+
+    let wasted = await loadImage("wasted.png")
+    let wastedScale = 1
+    let wastedWidth = wastedScale * wasted.width
+    let wastedHeight = wastedScale * wasted.height
+    let wastedLeft = (width - wastedWidth) / 2
+    let wastedTop = (height - wastedHeight) / 2
+
+    let winner = undefined
+          
     let dragon = await loadImage("dragon.webp")
     let dragonScale = 0.35
     let dragonWidth = dragonScale * dragon.width
@@ -126,6 +142,14 @@ window.addEventListener("DOMContentLoaded", async function () {
         for (let i = 0; i < crossbowHearts; i = i + 1) {
             context.drawImage(heart, width - heartWidth - heartWidth * i, height - heartHeight, heartWidth, heartHeight)
         }
+        switch (winner) {
+            case "crossbow":
+                context.drawImage(victory, victoryLeft, victoryTop, victoryWidth, victoryHeight)
+                break
+            case "dragon":
+                context.drawImage(wasted, wastedLeft, wastedTop, wastedWidth, wastedHeight)
+                break
+        }
     }
 
     function moveDragon() {
@@ -193,10 +217,20 @@ window.addEventListener("DOMContentLoaded", async function () {
         if (!isDragonHit && overlapping(dragonRect, arrowRect)) {
             isDragonHit = true
             dragonHearts = dragonHearts - 1
+            if (dragonHearts === 0) {
+                clearInterval(interval)
+                winner = "crossbow"
+                animate()
+            }
         } 
         if (!isCrossbowHit && overlapping(crossbowRect, fireballRect)) {
             isCrossbowHit = true
             crossbowHearts = crossbowHearts - 1
+            if (crossbowHearts === 0) {
+                clearInterval(interval)
+                winner = "dragon"
+                animate()
+            }
         }
     }
 
